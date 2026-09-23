@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration Form</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 30px 15px;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+        }
+
+        .form-box {
+            max-width: 600px;
+            margin: auto;
+            padding: 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #cccccc;
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #333333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #aaaaaa;
+            border-radius: 4px;
+        }
+
+        .radio-group input, .terms input { width: auto; }
+        .radio-group label, .terms label { display: inline; font-weight: normal; }
+
+        .error {
+            margin: 5px 0 0;
+            color: #d00000;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover { background: #1d4ed8; }
+
+        #successMessage {
+            color: green;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-box">
+        <h1>Student Registration Form</h1>
+
+        <form id="registrationForm" novalidate>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Enter your name">
+                <p class="error" id="nameError"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Enter your email">
+                <p class="error" id="emailError"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="mobile">Mobile Number:</label>
+                <input type="tel" id="mobile" placeholder="Enter 10-digit mobile number">
+                <p class="error" id="mobileError"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter password">
+                <p class="error" id="passwordError"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" placeholder="Enter password again">
+                <p class="error" id="confirmPasswordError"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="course">Course:</label>
+                <select id="course">
+                    <option value="">Select Course</option>
+                    <option value="BCA">BCA</option>
+                    <option value="BBA">BBA</option>
+                    <option value="BTech">B.Tech</option>
+                    <option value="MCA">MCA</option>
+                </select>
+                <p class="error" id="courseError"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="year">Year:</label>
+                <select id="year">
+                    <option value="">Select Year</option>
+                    <option value="1">First Year</option>
+                    <option value="2">Second Year</option>
+                    <option value="3">Third Year</option>
+                    <option value="4">Fourth Year</option>
+                </select>
+                <p class="error" id="yearError"></p>
+            </div>
+
+            <div class="form-group radio-group">
+                <label>Gender:</label>
+                <input type="radio" id="male" name="gender" value="Male">
+                <label for="male">Male</label>
+                <input type="radio" id="female" name="gender" value="Female">
+                <label for="female">Female</label>
+                <input type="radio" id="other" name="gender" value="Other">
+                <label for="other">Other</label>
+                <p class="error" id="genderError"></p>
+            </div>
+
+            <div class="form-group terms">
+                <input type="checkbox" id="terms">
+                <label for="terms">I accept the terms and conditions.</label>
+                <p class="error" id="termsError"></p>
+            </div>
+
+            <button type="submit">Register</button>
+            <p id="successMessage"></p>
+        </form>
+    </div>
+
+    <script>
+
+        const namePattern = /^[A-Za-z ]+$/;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const mobilePattern = /^[0-9]{10}$/;
+        const passwordPattern = /^.{6,}$/;
+
+        function showError(id, message) {
+            document.getElementById(id).textContent = message;
+        }
+
+        function clearErrors() {
+            const errors = document.querySelectorAll(".error");
+
+            errors.forEach(function (error) {
+                error.textContent = "";
+            });
+
+            document.getElementById("successMessage").textContent = "";
+        }
+
+        document.getElementById("registrationForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            clearErrors();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const mobile = document.getElementById("mobile").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const course = document.getElementById("course").value;
+            const year = document.getElementById("year").value;
+            const gender = document.querySelector('input[name="gender"]:checked');
+            const terms = document.getElementById("terms").checked;
+            let isValid = true;
+
+            if (!namePattern.test(name)) {
+                showError("nameError", "Enter a valid name.");
+                isValid = false;
+            }
+
+            if (!emailPattern.test(email)) {
+                showError("emailError", "Enter a valid email address.");
+                isValid = false;
+            }
+
+            if (!mobilePattern.test(mobile)) {
+                showError("mobileError", "Enter a valid 10-digit mobile number.");
+                isValid = false;
+            }
+
+            if (!passwordPattern.test(password)) {
+                showError("passwordError", "Password must contain at least 6 characters.");
+                isValid = false;
+            }
+
+            if (confirmPassword !== password || confirmPassword === "") {
+                showError("confirmPasswordError", "Passwords do not match.");
+                isValid = false;
+            }
+
+            if (course === "") {
+                showError("courseError", "Please select a course.");
+                isValid = false;
+            }
+
+            if (year === "") {
+                showError("yearError", "Please select a year.");
+                isValid = false;
+            }
+
+            if (!gender) {
+                showError("genderError", "Please select gender.");
+                isValid = false;
+            }
+
+            if (!terms) {
+                showError("termsError", "Please accept the terms and conditions.");
+                isValid = false;
+            }
+
+            if (isValid) {
+                document.getElementById("successMessage").textContent = "Registration successful!";
+                document.getElementById("registrationForm").reset();
+            }
+        });
+    </script>
+</body>
+</html> 
