@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect Student Registration</title>
+    <style>
+        :root {
+            --background: #eef5f3;
+            --surface: #ffffff;
+            --text: #17221f;
+            --muted: #60716c;
+            --border: #d5e2de;
+            --accent: #0f766e;
+            --accent-dark: #0b5f59;
+            --shadow: 0 16px 40px rgba(22, 62, 55, .14);
+        }
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding-bottom: 40px;
+            color: var(--text);
+            background: var(--background);
+            font-family: Arial, sans-serif;
+            transition: background 0.25s, color 0.25s;
+        }
+
+        body.dark-theme {
+            --background: #101a22;
+            --surface: #1b2a33;
+            --text: #edf8f5;
+            --muted: #aec1bc;
+            --border: #39505a;
+            --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .notification {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 11px 16px;
+            color: white;
+            background: var(--accent);
+            font-weight: bold;
+        }
+
+        .notification button {
+            width: auto;
+            padding: 0 5px;
+            color: white;
+            background: transparent;
+            border: 0;
+            font-size: 20px;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1100px;
+            margin: auto;
+            padding: 18px 15px;
+        }
+
+        .brand {
+            color: var(--accent);
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .control-button,
+        .menu-toggle {
+            width: auto;
+            padding: 9px 13px;
+            color: var(--text);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+        }
+
+        .control-button:hover,
+        .menu-toggle:hover {
+            background: var(--border);
+        }
+
+        .menu-toggle {
+            display: none;
+        }
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+            gap: 28px;
+            max-width: 1100px;
+            margin: 10px auto 0;
+            padding: 0 15px;
+        }
+
+        .form-box,
+        .info-panel {
+            padding: 25px;
+            background: var(--surface);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        h1,
+        h2 {
+            margin-top: 0;
+            color: var(--text);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .radio-group input,
+        .terms input {
+            width: auto;
+        }
+
+        .radio-group label,
+        .terms label {
+            display: inline;
+            margin-right: 8px;
+            font-weight: normal;
+        }
+
+        .error {
+            min-height: 16px;
+            margin: 5px 0 0;
+            color: #c62828;
+            font-size: 14px;
+        }
+
+        .primary-button {
+            width: 100%;
+            padding: 12px;
+            color: white;
+            background: var(--accent);
+            border: 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .primary-button:hover {
+            background: var(--accent-dark);
+        }
+
+        #successMessage {
+            color: var(--accent);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .slider {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .slides {
+            display: flex;
+            transition: transform 0.45s ease;
+        }
+
+        .slide {
+            position: relative;
+            min-width: 100%;
+        }
+
+        .slide img {
+            display: block;
+            width: 100%;
+            height: 235px;
+            object-fit: cover;
+        }
+
+        .slide-caption {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 25px 18px 16px;
+            color: white;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        }
+
+        .slider-controls {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 45%;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        .slider-controls button {
+            width: auto;
+            padding: 8px 13px;
+            color: white;
+            background: rgba(0, 0, 0, 0.65);
+            border: 0;
+            border-radius: 50%;
+        }
+
+        .info-panel {
+            margin-top: 24px;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 16px 0;
+            color: var(--text);
+            text-align: left;
+            background: transparent;
+            border: 0;
+        }
+
+        .faq-question:hover {
+            color: var(--accent);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            color: var(--muted);
+            line-height: 1.5;
+            transition: max-height 0.25s, padding 0.25s;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 100px;
+            padding-bottom: 16px;
+        }
+
+        .modal-backdrop {
+            display: none;
+            place-items: center;
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            padding: 20px;
+            background: rgba(8, 15, 30, 0.65);
+        }
+
+        .modal-backdrop.visible {
+            display: grid;
+        }
+
+        .modal {
+            max-width: 420px;
+            padding: 28px;
+            color: var(--text);
+            background: var(--surface);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        @media (max-width: 720px) {
+            .site-header {
+                flex-wrap: wrap;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-menu {
+                display: none;
+                width: 100%;
+                padding-top: 15px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-menu.open {
+                display: flex;
+            }
+
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification" role="status">
+        <button type="button" id="dismissNotification" aria-label="Dismiss notification"></button>
+    </div>
+
+    <header class="site-header">
+        <div class="brand">CampusConnect</div>
+        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">Menu</button>
+        <nav class="nav-menu" id="navMenu">
+            <button type="button" class="control-button" id="themeToggle">Dark mode</button>
+        </nav>
+    </header>
+
+    <main class="page-grid">
+        <section class="form-box" id="registration">
+            <h1>Student Registration Form</h1>
+            <form id="registrationForm" novalidate>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" placeholder="Enter your name">
+                    <p class="error" id="nameError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" placeholder="Enter your email">
+                    <p class="error" id="emailError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="mobile">Mobile Number:</label>
+                    <input type="tel" id="mobile" placeholder="Enter 10-digit mobile number">
+                    <p class="error" id="mobileError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                    <p class="error" id="passwordError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" placeholder="Enter password again">
+                    <p class="error" id="confirmPasswordError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="course">Course:</label>
+                    <select id="course">
+                        <option value="">Select Course</option>
+                        <option>BCA</option>
+                        <option>BBA</option>
+                        <option>B.Tech</option>
+                        <option>MCA</option>
+                    </select>
+                    <p class="error" id="courseError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Year:</label>
+                    <select id="year">
+                        <option value="">Select Year</option>
+                        <option>First Year</option>
+                        <option>Second Year</option>
+                        <option>Third Year</option>
+                        <option>Fourth Year</option>
+                    </select>
+                    <p class="error" id="yearError"></p>
+                </div>
+
+                <div class="form-group radio-group">
+                    <label>Gender:</label>
+                    <input type="radio" id="male" name="gender" value="Male">
+                    <label for="male">Male</label>
+                    <input type="radio" id="female" name="gender" value="Female">
+                    <label for="female">Female</label>
+                    <input type="radio" id="other" name="gender" value="Other">
+                    <label for="other">Other</label>
+                    <p class="error" id="genderError"></p>
+                </div>
+
+                <div class="form-group terms">
+                    <input type="checkbox" id="terms">
+                    <label for="terms">I accept the terms and conditions.</label>
+                    <p class="error" id="termsError"></p>
+                </div>
+
+                <button type="submit" class="primary-button">Register</button>
+                <p id="successMessage"></p>
+            </form>
+        </section>
+
+        <aside>
+            <div class="slider" aria-label="Campus highlights">
+                <div class="slides" id="slides">
+                    <div class="slide">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeu-6V1E_0fUH8Ul0mxhw8Pj9I-rfgsHgm9wUwNVBAmxaBrhuu3dA-g8Q&s=10" alt="Students studying together">
+                        <div class="slide-caption">Learn together. Grow together.</div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://assets.kollegeapply.com/images/1750766313767-1503290670phpBWFMfm.jpeg" alt="University campus building">
+                        <div class="slide-caption">Build your next chapter.</div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://www.charusat.ac.in/assets/images/exam-corner/exam2.jpg" alt="Students exam writing">
+                        <div class="slide-caption">Your future starts here.</div>
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button type="button" id="previousSlide" aria-label="Previous slide">&#8592;</button>
+                    <button type="button" id="nextSlide" aria-label="Next slide">&#8594;</button>
+                </div>
+            </div>
+
+            <section class="info-panel" id="faq">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        What documents do I need?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">Keep a recent photograph, identity proof, and your previous marksheet ready.</div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        Can I edit my details later?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">Yes. Contact the admissions office after submitting your registration.</div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        How will I know my form was accepted?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">A confirmation message will appear after all required fields are valid.</div>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <div class="modal-backdrop" id="successModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <h2 id="modalTitle">Registration successful!</h2>
+            <p>Thanks for registering. The admissions team will contact you soon.</p>
+            <button type="button" class="primary-button" id="closeModal">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        const byId = (id) => document.getElementById(id);
+
+        const namePattern = /^[A-Za-z ]+$/;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const mobilePattern = /^[0-9]{10}$/;
+        const passwordPattern = /^.{6,}$/;
+
+        const savedTheme = localStorage.getItem("registrationTheme");
+
+        if (savedTheme === "dark") document.body.classList.add("dark-theme");
+
+        byId("themeToggle").textContent = document.body.classList.contains("dark-theme")
+            ? "Light mode"
+            : "Dark mode";
+
+        byId("themeToggle").addEventListener("click", () => {
+            const isDark = document.body.classList.toggle("dark-theme");
+            byId("themeToggle").textContent = isDark ? "Light mode" : "Dark mode";
+            localStorage.setItem("registrationTheme", isDark ? "dark" : "light");
+        });
+
+        byId("menuToggle").addEventListener("click", () => byId("navMenu").classList.toggle("open"));
+        byId("dismissNotification").addEventListener("click", () => byId("notification").hidden = true);
+
+        let currentSlide = 0;
+        const slides = byId("slides");
+
+        function moveSlide(step) {
+            currentSlide = (currentSlide + step + slides.children.length) % slides.children.length;
+            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+
+        byId("previousSlide").addEventListener("click", () => moveSlide(-1));
+        byId("nextSlide").addEventListener("click", () => moveSlide(1));
+
+        document.querySelectorAll(".faq-question").forEach((question) => {
+            question.addEventListener("click", () => {
+                const item = question.parentElement;
+                const isOpen = item.classList.toggle("open");
+                question.querySelector("span").textContent = isOpen ? "-" : "+";
+            });
+        });
+
+        const modal = byId("successModal");
+        const closeModal = () => modal.classList.remove("visible");
+
+        byId("closeModal").addEventListener("click", closeModal);
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) closeModal();
+        });
+
+        function showError(id, message) { byId(id).textContent = message; }
+
+        function clearErrors() {
+            document.querySelectorAll(".error").forEach((error) => error.textContent = "");
+            byId("successMessage").textContent = "";
+        }
+
+        byId("registrationForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            clearErrors();
+
+            const name = byId("name").value.trim();
+            const email = byId("email").value.trim();
+            const mobile = byId("mobile").value.trim();
+            const password = byId("password").value;
+            const confirmPassword = byId("confirmPassword").value;
+            let isValid = true;
+
+            if (!namePattern.test(name)) {
+                showError("nameError", "Enter a valid name.");
+                isValid = false;
+            }
+
+            if (!emailPattern.test(email)) {
+                showError("emailError", "Enter a valid email address.");
+                isValid = false;
+            }
+
+            if (!mobilePattern.test(mobile)) {
+                showError("mobileError", "Enter a valid 10-digit mobile number.");
+                isValid = false;
+            }
+
+            if (!passwordPattern.test(password)) {
+                showError("passwordError", "Password must contain at least 6 characters.");
+                isValid = false;
+            }
+
+            if (confirmPassword !== password || confirmPassword === "") {
+                showError("confirmPasswordError", "Passwords do not match.");
+                isValid = false;
+            }
+
+            if (!byId("course").value) {
+                showError("courseError", "Please select a course.");
+                isValid = false;
+            }
+
+            if (!byId("year").value) {
+                showError("yearError", "Please select a year.");
+                isValid = false;
+            }
+
+            if (!document.querySelector('input[name="gender"]:checked')) {
+                showError("genderError", "Please select gender.");
+                isValid = false;
+            }
+
+            if (!byId("terms").checked) {
+                showError("termsError", "Please accept the terms and conditions.");
+                isValid = false;
+            }
+
+            if (isValid) {
+                byId("successMessage").textContent = "Registration successful!";
+                byId("registrationForm").reset();
+                modal.classList.add("visible");
+            }
+        });
+    </script>
+</body>
+</html>
