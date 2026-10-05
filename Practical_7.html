@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; font-family: Arial, sans-serif; background: #f4f7fb; color: #172033; }
+        main { max-width: 720px; margin: auto; padding: 42px 20px; }
+        h1 { margin: 0; color: #1e3a8a; }
+        .subtitle { margin: 8px 0 28px; color: #62708a; line-height: 1.5; }
+        form { padding: 24px; background: white; border-radius: 12px; box-shadow: 0 4px 18px #182b5014; }
+        .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .wide { grid-column: 1 / -1; }
+        label { display: block; margin-bottom: 6px; font-size: .9rem; font-weight: bold; }
+        input, select, textarea, button { font: inherit; }
+        input, select, textarea { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 7px; background: white; }
+        textarea { resize: vertical; }
+        input:focus, select:focus, textarea:focus { outline: 2px solid #2563eb; outline-offset: 2px; }
+        .terms { display: flex; align-items: center; gap: 10px; margin: 20px 0; font-weight: normal; }
+        .terms input { width: auto; }
+        button { padding: 11px 20px; border: 0; border-radius: 7px; background: #2563eb; color: white; cursor: pointer; }
+        button:hover:not(:disabled) { background: #1d4ed8; }
+        button:disabled { cursor: wait; opacity: .6; }
+        #feedback { margin-top: 18px; padding: 15px; border-radius: 8px; line-height: 1.5; }
+        #feedback[hidden] { display: none; }
+        #feedback.success { color: #166534; background: #dcfce7; }
+        #feedback.error { color: #991b1b; background: #fee2e2; }
+        #feedback.pending { color: #1e3a8a; background: #dbeafe; }
+        #feedback ul { margin-bottom: 0; padding-left: 20px; }
+        @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } main { padding-top: 25px; } }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Student Registration</h1>
+        <p class="subtitle">Practical 7: PHP form processing with server-side validation and JSON file storage.</p>
+        <!-- Adapted from the Practical 6 page after copying it to Practical_7.html. -->
+        <form id="registrationForm" action="Practical_7.php" method="post" novalidate>
+            <div class="fields">
+                <div>
+                    <label for="name">Full name</label>
+                    <input id="name" name="name" type="text" autocomplete="name" maxlength="100" required>
+                </div>
+                <div>
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+                </div>
+                <div>
+                    <label for="phone">Mobile number (10 digits)</label>
+                    <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="10" required>
+                </div>
+                <div>
+                    <label for="course">Course</label>
+                    <select id="course" name="course" required>
+                        <option value="">Select a course</option>
+                        <option value="BCA">BCA</option>
+                        <option value="BBA">BBA</option>
+                        <option value="BTech">B.Tech</option>
+                        <option value="MCA">MCA</option>
+                    </select>
+                </div>
+                <div class="wide">
+                    <label for="message">Message (optional, up to 1000 characters)</label>
+                    <textarea id="message" name="message" rows="4" maxlength="1000"></textarea>
+                </div>
+            </div>
+            <label class="terms"><input name="terms" type="checkbox" value="1" required> I accept the terms and conditions.</label>
+            <button id="submitButton" type="submit">Register</button>
+        </form>
+        <div id="feedback" role="status" aria-live="polite" hidden></div>
+        <noscript><p>Your form will submit directly to PHP and display the result on a separate page.</p></noscript>
+    </main>
+    <script>
+        const form = document.getElementById('registrationForm');
+        const feedback = document.getElementById('feedback');
+        const submitButton = document.getElementById('submitButton');
+
+        function showFeedback(message, type, errors = {}) {
+            feedback.hidden = false;
+            feedback.className = type;
+            feedback.textContent = message;
+            if (Object.keys(errors).length) {
+                const list = document.createElement('ul');
+                Object.values(errors).forEach(error => {
+                    const item = document.createElement('li');
+                    item.textContent = error;
+                    list.append(item);
+                });
+                feedback.append(list);
+            }
+        }
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            submitButton.disabled = true;
+            showFeedback('Submitting your registration…', 'pending');
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { Accept: 'application/json' },
+                    body: new FormData(form)
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    showFeedback(result.message || 'Registration failed.', 'error', result.errors || {});
+                    return;
+                }
+                showFeedback(result.message, 'success');
+                form.reset();
+            } catch (error) {
+                showFeedback('Could not submit the form. Please open this page through a PHP server and try again.', 'error');
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
