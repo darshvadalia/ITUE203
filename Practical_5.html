@@ -1,244 +1,262 @@
+
+<!DOCTYPE html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration Form</title>
-
+    <title>Student Registration</title>
     <style>
+        :root {
+            color-scheme: light;
+            --ink: #20302d;
+            --muted: #61716d;
+            --line: #ccd8d3;
+            --paper: #ffffff;
+            --ground: #edf3ef;
+            --green: #176b58;
+            --green-dark: #105443;
+            --error: #b42318;
+        }
+
         * { box-sizing: border-box; }
-
         body {
+            min-height: 100vh;
             margin: 0;
-            padding: 30px 15px;
+            padding: 36px 16px;
+            color: var(--ink);
+            background: linear-gradient(135deg, #edf3ef 0%, #e2ece7 55%, #f5f2e9 100%);
             font-family: Arial, sans-serif;
-            background: #f2f2f2;
         }
-
-        .form-box {
-            max-width: 600px;
-            margin: auto;
-            padding: 25px;
-            background: white;
+        main {
+            width: min(100%, 680px);
+            margin: 0 auto;
+            padding: 32px;
+            background: var(--paper);
+            border: 1px solid #d9e3de;
             border-radius: 8px;
-            box-shadow: 0 0 10px #cccccc;
+            box-shadow: 0 16px 42px rgba(30, 57, 49, .12);
         }
-
-        h1 {
-            margin-top: 0;
-            text-align: center;
-            color: #333333;
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--green);
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
         }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
+        h1 { margin: 0; font-size: 1.8rem; }
+        .intro { margin: 8px 0 26px; color: var(--muted); line-height: 1.5; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .field { min-width: 0; }
+        .field.full { grid-column: 1 / -1; }
+        label, legend { display: block; margin-bottom: 6px; font-weight: 700; }
         input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #aaaaaa;
+            min-height: 44px;
+            padding: 10px 11px;
+            color: var(--ink);
+            background: #fff;
+            border: 1px solid var(--line);
             border-radius: 4px;
+            font: inherit;
         }
-
-        .radio-group input, .terms input { width: auto; }
-        .radio-group label, .terms label { display: inline; font-weight: normal; }
-
-        .error {
-            margin: 5px 0 0;
-            color: #d00000;
-            font-size: 14px;
+        input:focus, select:focus {
+            outline: 3px solid rgba(23, 107, 88, .18);
+            border-color: var(--green);
         }
-
+        [aria-invalid="true"] { border-color: var(--error); }
+        fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+        .choices { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 44px; align-items: center; }
+        .choice, .terms-choice { display: inline-flex; align-items: center; gap: 7px; font-weight: 400; }
+        .choice input, .terms-choice input { width: 17px; min-height: 17px; margin: 0; accent-color: var(--green); }
+        .hint { margin: 5px 0 0; color: var(--muted); font-size: .84rem; }
+        .error { min-height: 18px; margin: 5px 0 0; color: var(--error); font-size: .84rem; }
+        .terms-choice { align-items: flex-start; line-height: 1.45; }
+        .terms-choice input { flex: 0 0 auto; margin-top: 2px; }
         button {
             width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 4px;
-            background: #2563eb;
+            min-height: 46px;
+            margin-top: 8px;
             color: white;
-            font-size: 16px;
+            background: var(--green);
+            border: 0;
+            border-radius: 4px;
+            font: inherit;
+            font-weight: 700;
             cursor: pointer;
         }
-
-        button:hover { background: #1d4ed8; }
-
-        #successMessage {
-            color: green;
-            text-align: center;
-            font-weight: bold;
+        button:hover { background: var(--green-dark); }
+        button:focus-visible { outline: 3px solid #93c5b7; outline-offset: 2px; }
+        #formMessage { min-height: 22px; margin: 15px 0 0; text-align: center; }
+        #formMessage.success { color: var(--green-dark); }
+        @media (max-width: 560px) {
+            body { padding: 16px 10px; }
+            main { padding: 23px 18px; }
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .field.full { grid-column: auto; }
         }
     </style>
 </head>
 <body>
-    <div class="form-box">
-        <h1>Student Registration Form</h1>
+    <main>
+        <p class="eyebrow">CampusConnect</p>
+        <h1>Student Registration</h1>
+        <p class="intro">Enter your details below. Fields marked as required must be completed.</p>
 
         <form id="registrationForm" novalidate>
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" placeholder="Enter your name">
-                <p class="error" id="nameError"></p>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="name">Full name</label>
+                    <input id="name" name="name" type="text" autocomplete="name" required aria-describedby="nameHint nameError">
+                    <p class="hint" id="nameHint">Use letters, spaces, apostrophes, or hyphens.</p>
+                    <p class="error" id="nameError" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required aria-describedby="emailError">
+                    <p class="error" id="emailError" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                    <label for="mobile">Mobile number</label>
+                    <input id="mobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10 digits" required aria-describedby="mobileError">
+                    <p class="error" id="mobileError" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                    <label for="course">Course</label>
+                    <select id="course" name="course" required aria-describedby="courseError">
+                        <option value="">Choose a course</option>
+                        <option value="BCA">BCA</option>
+                        <option value="BBA">BBA</option>
+                        <option value="BTech">B.Tech</option>
+                        <option value="MCA">MCA</option>
+                    </select>
+                    <p class="error" id="courseError" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="new-password" required aria-describedby="passwordHint passwordError">
+                    <p class="hint" id="passwordHint">At least 8 characters, including a letter and a number.</p>
+                    <p class="error" id="passwordError" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                    <label for="confirmPassword">Confirm password</label>
+                    <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required aria-describedby="confirmPasswordError">
+                    <p class="error" id="confirmPasswordError" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                    <label for="year">Year of study</label>
+                    <select id="year" name="year" required aria-describedby="yearError">
+                        <option value="">Choose a year</option>
+                        <option value="First Year">First Year</option>
+                        <option value="Second Year">Second Year</option>
+                        <option value="Third Year">Third Year</option>
+                        <option value="Fourth Year">Fourth Year</option>
+                    </select>
+                    <p class="error" id="yearError" aria-live="polite"></p>
+                </div>
+                <fieldset class="field" aria-describedby="genderError">
+                    <legend>Gender</legend>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="gender" value="Female"> Female</label>
+                        <label class="choice"><input type="radio" name="gender" value="Male"> Male</label>
+                        <label class="choice"><input type="radio" name="gender" value="Other"> Other</label>
+                    </div>
+                    <p class="error" id="genderError" aria-live="polite"></p>
+                </fieldset>
+                <div class="field full">
+                    <label class="terms-choice" for="terms">
+                        <input id="terms" name="terms" type="checkbox" aria-describedby="termsError">
+                        <span>I have read and accept the terms and conditions.</span>
+                    </label>
+                    <p class="error" id="termsError" aria-live="polite"></p>
+                </div>
+                <div class="field full">
+                    <button type="submit">Register</button>
+                    <p id="formMessage" role="status" aria-live="polite"></p>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" placeholder="Enter your email">
-                <p class="error" id="emailError"></p>
-            </div>
-
-            <div class="form-group">
-                <label for="mobile">Mobile Number:</label>
-                <input type="tel" id="mobile" placeholder="Enter 10-digit mobile number">
-                <p class="error" id="mobileError"></p>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" placeholder="Enter password">
-                <p class="error" id="passwordError"></p>
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password:</label>
-                <input type="password" id="confirmPassword" placeholder="Enter password again">
-                <p class="error" id="confirmPasswordError"></p>
-            </div>
-
-            <div class="form-group">
-                <label for="course">Course:</label>
-                <select id="course">
-                    <option value="">Select Course</option>
-                    <option value="BCA">BCA</option>
-                    <option value="BBA">BBA</option>
-                    <option value="BTech">B.Tech</option>
-                    <option value="MCA">MCA</option>
-                </select>
-                <p class="error" id="courseError"></p>
-            </div>
-
-            <div class="form-group">
-                <label for="year">Year:</label>
-                <select id="year">
-                    <option value="">Select Year</option>
-                    <option value="1">First Year</option>
-                    <option value="2">Second Year</option>
-                    <option value="3">Third Year</option>
-                    <option value="4">Fourth Year</option>
-                </select>
-                <p class="error" id="yearError"></p>
-            </div>
-
-            <div class="form-group radio-group">
-                <label>Gender:</label>
-                <input type="radio" id="male" name="gender" value="Male">
-                <label for="male">Male</label>
-                <input type="radio" id="female" name="gender" value="Female">
-                <label for="female">Female</label>
-                <input type="radio" id="other" name="gender" value="Other">
-                <label for="other">Other</label>
-                <p class="error" id="genderError"></p>
-            </div>
-
-            <div class="form-group terms">
-                <input type="checkbox" id="terms">
-                <label for="terms">I accept the terms and conditions.</label>
-                <p class="error" id="termsError"></p>
-            </div>
-
-            <button type="submit">Register</button>
-            <p id="successMessage"></p>
         </form>
-    </div>
+    </main>
 
     <script>
+        const form = document.getElementById("registrationForm");
+        const patterns = {
+            name: /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/,
+            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            mobile: /^[0-9]{10}$/,
+            password: /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
+        };
 
-        const namePattern = /^[A-Za-z ]+$/;
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const mobilePattern = /^[0-9]{10}$/;
-        const passwordPattern = /^.{6,}$/;
-
-        function showError(id, message) {
-            document.getElementById(id).textContent = message;
+        function setError(fieldName, message) {
+            const field = fieldName === "gender"
+                ? form.querySelector('input[name="gender"]:checked') || form.querySelector('input[name="gender"]')
+                : document.getElementById(fieldName);
+            const error = document.getElementById(`${fieldName}Error`);
+            if (fieldName === "gender") {
+                form.querySelectorAll('input[name="gender"]').forEach((option) => {
+                    option.setAttribute("aria-invalid", String(Boolean(message)));
+                });
+            } else if (field) {
+                field.setAttribute("aria-invalid", String(Boolean(message)));
+            }
+            error.textContent = message;
         }
 
-        function clearErrors() {
-            const errors = document.querySelectorAll(".error");
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            document.getElementById("formMessage").textContent = "";
+            document.getElementById("formMessage").classList.remove("success");
 
-            errors.forEach(function (error) {
-                error.textContent = "";
+            const values = {
+                name: form.elements.name.value.trim(),
+                email: form.elements.email.value.trim(),
+                mobile: form.elements.mobile.value.trim(),
+                password: form.elements.password.value,
+                confirmPassword: form.elements.confirmPassword.value,
+                course: form.elements.course.value,
+                year: form.elements.year.value
+            };
+            const errors = {};
+
+            if (!patterns.name.test(values.name)) errors.name = "Enter a valid name using letters, spaces, apostrophes, or hyphens.";
+            if (!patterns.email.test(values.email)) errors.email = "Enter an email address in the format name@example.com.";
+            if (!patterns.mobile.test(values.mobile)) errors.mobile = "Enter a 10-digit mobile number without spaces or symbols.";
+            if (!patterns.password.test(values.password)) errors.password = "Use at least 8 characters, with at least one letter and one number.";
+            if (!values.confirmPassword || values.confirmPassword !== values.password) errors.confirmPassword = "The passwords do not match.";
+            if (!values.course) errors.course = "Choose a course to continue.";
+            if (!values.year) errors.year = "Choose your current year of study.";
+            if (!form.querySelector('input[name="gender"]:checked')) errors.gender = "Select a gender option to continue.";
+            if (!form.elements.terms.checked) errors.terms = "Please accept the terms and conditions to continue.";
+
+            ["name", "email", "mobile", "password", "confirmPassword", "course", "year", "gender", "terms"].forEach((fieldName) => {
+                setError(fieldName, errors[fieldName] || "");
             });
 
-            document.getElementById("successMessage").textContent = "";
-        }
-
-        document.getElementById("registrationForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-            clearErrors();
-
-            const name = document.getElementById("name").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const mobile = document.getElementById("mobile").value.trim();
-            const password = document.getElementById("password").value;
-            const confirmPassword = document.getElementById("confirmPassword").value;
-            const course = document.getElementById("course").value;
-            const year = document.getElementById("year").value;
-            const gender = document.querySelector('input[name="gender"]:checked');
-            const terms = document.getElementById("terms").checked;
-            let isValid = true;
-
-            if (!namePattern.test(name)) {
-                showError("nameError", "Enter a valid name.");
-                isValid = false;
+            const firstInvalidField = form.querySelector('[aria-invalid="true"]');
+            if (Object.keys(errors).length > 0) {
+                firstInvalidField?.focus();
+                return;
             }
 
-            if (!emailPattern.test(email)) {
-                showError("emailError", "Enter a valid email address.");
-                isValid = false;
-            }
+            const message = document.getElementById("formMessage");
+            message.textContent = "All fields are valid. This demo does not send or save your information.";
+            message.classList.add("success");
+        });
 
-            if (!mobilePattern.test(mobile)) {
-                showError("mobileError", "Enter a valid 10-digit mobile number.");
-                isValid = false;
+        form.addEventListener("input", (event) => {
+            const field = event.target;
+            if (field.matches("input, select") && field.getAttribute("aria-invalid") === "true") {
+                field.removeAttribute("aria-invalid");
+                const error = document.getElementById(`${field.id}Error`);
+                if (error) error.textContent = "";
             }
+        });
 
-            if (!passwordPattern.test(password)) {
-                showError("passwordError", "Password must contain at least 6 characters.");
-                isValid = false;
-            }
-
-            if (confirmPassword !== password || confirmPassword === "") {
-                showError("confirmPasswordError", "Passwords do not match.");
-                isValid = false;
-            }
-
-            if (course === "") {
-                showError("courseError", "Please select a course.");
-                isValid = false;
-            }
-
-            if (year === "") {
-                showError("yearError", "Please select a year.");
-                isValid = false;
-            }
-
-            if (!gender) {
-                showError("genderError", "Please select gender.");
-                isValid = false;
-            }
-
-            if (!terms) {
-                showError("termsError", "Please accept the terms and conditions.");
-                isValid = false;
-            }
-
-            if (isValid) {
-                document.getElementById("successMessage").textContent = "Registration successful!";
-                document.getElementById("registrationForm").reset();
-            }
+        form.addEventListener("change", (event) => {
+            if (event.target.name === "gender") setError("gender", "");
+            if (event.target.name === "terms") setError("terms", "");
         });
     </script>
 </body>
-</html> 
+</html>
