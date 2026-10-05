@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profiles</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; font-family: Arial, sans-serif; background: #f4f7fb; color: #172033; }
+        main { max-width: 1050px; margin: auto; padding: 42px 20px; }
+        h1 { margin: 0; color: #1e3a8a; }
+        .subtitle { margin: 8px 0 28px; color: #62708a; }
+        .controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; padding: 18px; background: #fff; border-radius: 12px; box-shadow: 0 4px 18px #182b5014; }
+        label { display: block; margin-bottom: 6px; font-size: .86rem; font-weight: bold; }
+        input, select, button { font: inherit; }
+        input, select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 7px; background: #fff; }
+        #status { min-height: 24px; margin: 20px 0 12px; color: #53627b; }
+        #students { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+        .card { padding: 20px; background: #fff; border-radius: 12px; border-top: 4px solid #2563eb; box-shadow: 0 4px 15px #182b500e; }
+        .card h2 { margin: 0 0 13px; font-size: 1.18rem; color: #1e3a8a; }
+        .card p { margin: 8px 0; color: #475569; overflow-wrap: anywhere; }
+        .card strong { color: #24344e; }
+        .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 28px; }
+        button { padding: 10px 16px; border: 0; border-radius: 7px; background: #2563eb; color: #fff; cursor: pointer; }
+        button:hover:not(:disabled) { background: #1d4ed8; }
+        button:disabled { cursor: not-allowed; opacity: .5; }
+        @media (max-width: 650px) { .controls { grid-template-columns: 1fr; } main { padding-top: 25px; } }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Student Profiles</h1>
+        <p class="subtitle">Browse the student directory loaded from an external JSON file.</p>
+        <section class="controls" aria-label="Student directory controls">
+            <div><label for="search">Search</label><input id="search" type="search" placeholder="Name, email, or ID" autocomplete="off"></div>
+            <div><label for="department">Department</label><select id="department"><option value="all">All departments</option></select></div>
+            <div><label for="sort">Sort by name</label><select id="sort"><option value="asc">A–Z</option><option value="desc">Z–A</option></select></div>
+        </section>
+        <p id="status" role="status">Loading student profiles…</p>
+        <section id="students" aria-live="polite"></section>
+        <nav class="pagination" aria-label="Pagination">
+            <button id="previous" type="button">← Previous</button><span id="pageInfo"></span><button id="next" type="button">Next →</button>
+        </nav>
+    </main>
+    <script>
+        const perPage = 3;
+        let students = [], currentPage = 1;
+        const searchInput = document.getElementById('search');
+        const departmentSelect = document.getElementById('department');
+        const sortSelect = document.getElementById('sort');
+        const studentsContainer = document.getElementById('students');
+        const status = document.getElementById('status');
+        const pageInfo = document.getElementById('pageInfo');
+        const previousButton = document.getElementById('previous');
+        const nextButton = document.getElementById('next');
+
+        async function loadStudents() {
+            try {
+                const response = await fetch('./student.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                students = await response.json();
+                addDepartments();
+                renderStudents();
+            } catch (error) {
+                status.textContent = 'Unable to load student data. Open this page through a local server (for example, Live Server).';
+                studentsContainer.replaceChildren();
+                previousButton.disabled = nextButton.disabled = true;
+                console.error('Student data could not be loaded:', error);
+            }
+        }
+
+        function addDepartments() {
+            [...new Set(students.map(student => student.department))].sort().forEach(department => {
+                const option = document.createElement('option');
+                option.value = option.textContent = department;
+                departmentSelect.append(option);
+            });
+        }
+
+        function filteredStudents() {
+            const query = searchInput.value.trim().toLowerCase();
+            return students.filter(student => {
+                const searchable = `${student.id} ${student.name} ${student.email} ${student.department}`.toLowerCase();
+                return searchable.includes(query) && (departmentSelect.value === 'all' || student.department === departmentSelect.value);
+            }).sort((a, b) => sortSelect.value === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+        }
+
+        function createCard(student) {
+            const card = document.createElement('article');
+            card.className = 'card';
+            const heading = document.createElement('h2');
+            heading.textContent = student.name;
+            card.append(heading);
+            [['Student ID', student.id], ['Department', student.department], ['Email', student.email]].forEach(([label, value]) => {
+                const line = document.createElement('p');
+                const title = document.createElement('strong');
+                title.textContent = `${label}: `;
+                line.append(title, value);
+                card.append(line);
+            });
+            return card;
+        }
+
+        function renderStudents() {
+            const results = filteredStudents();
+            const totalPages = Math.max(1, Math.ceil(results.length / perPage));
+            currentPage = Math.min(currentPage, totalPages);
+            const pageStudents = results.slice((currentPage - 1) * perPage, currentPage * perPage);
+            studentsContainer.replaceChildren(...pageStudents.map(createCard));
+            status.textContent = results.length ? `${results.length} student${results.length === 1 ? '' : 's'} found.` : 'No students match your search.';
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            previousButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages || results.length === 0;
+        }
+
+        function resetAndRender() { currentPage = 1; renderStudents(); }
+        searchInput.addEventListener('input', resetAndRender);
+        departmentSelect.addEventListener('change', resetAndRender);
+        sortSelect.addEventListener('change', resetAndRender);
+        previousButton.addEventListener('click', () => { currentPage--; renderStudents(); });
+        nextButton.addEventListener('click', () => { currentPage++; renderStudents(); });
+        loadStudents();
+    </script>
+</body>
+</html>
